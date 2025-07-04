@@ -1,0 +1,93 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <form method="get" action="">
+            <div class="card-body row no-gutters align-items-center">
+                <div class="col">
+                    <input
+                        type="search"
+                        name="item_name"
+                        class="form-control form-control-lg form-control-borderless"
+                        placeholder="Rechercher un produit"
+                        value="{{ request.GET.item_name }}">
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-lg btn-success" type="submit">Rechercher</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    {% if products %}
+        {% for product in products %}
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text">{{ product.price }} F</p>
+                        <div class="btn-group">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-warning"><i class="bi bi-eye"></i> Voir</a>
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn ted btn-success"><i class="bi bi-cart-plus"></i> Ajouter</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12 text-center mt-4">
+            <div class="alert alert-warning">Aucun produit trouvé.</div>
+        </div>
+    {% endif %}
+</div>
+
+{% if products.has_other_pages %}
+<nav aria-label="Pagination">
+    <ul class="pagination justify-content-center">
+        {% if products.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.item_name %}&item_name={{ request.GET.item_name }}{% endif %}">
+                    Précédent
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            <li class="page-item {% if products.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% if request.GET.item_name %}&item_name={{ request.GET.item_name }}{% endif %}">
+                    {{ num }}
+                </a>
+            </li>
+        {% endfor %}
+
+        {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.item_name %}&item_name={{ request.GET.item_name }}{% endif %}">
+                    Suivant
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
+
+
+{% block js %} 
+    <script type="text/javascript">
+        console.log("Page d'accueil chargée");
+        if(localStorage.getItem('panier') == null){
+            var panier = {};
+        } else {
+            var panier = JSON.parse(localStorage.getItem('panier'));
+        }
+        $(document).on('click', '.ted', function(e) {
+            console.log("Produit ajouté au panier");
+        });     
+    </script>
+{% endblock js %}
